@@ -1,0 +1,70 @@
+---
+title: "HW3_LP"
+author: "Luke Profio"
+date: "`r Sys.Date()`"
+output:
+  pdf_document: default
+  html_document: default
+---
+## Question 1:
+```{r question_1, include=TRUE, echo=FALSE, message=FALSE}
+library(tidyverse)
+persons = read_csv("persons.csv")
+food = read_csv("food.csv")
+drinks = read_csv("drinks.csv")
+dinners = read_csv("dinners.csv")
+
+dinners_explicit <- dinners |>
+  left_join(persons, by = c("person_id" = "id")) |>
+  left_join(food, by = "food_id") |>
+  left_join(drinks, by = c("drink_id" = "item_id")) |>
+  select(
+    drink=item_name,
+    drink_price=price.y,
+    food=name,
+    food_price=price.x,
+    first_name,
+    last_name,
+    age)
+dinners_explicit
+```
+## Question 2:
+```{r question_2, include=TRUE, echo=FALSE, message=FALSE}
+most_popular_drinks <- dinners_explicit |>
+  group_by(drink) |>
+  summarize(n=n()) |>
+  drop_na() |>
+  arrange(desc(n)) |>
+  head(2)
+most_popular_drinks
+
+most_popular_foods <- dinners_explicit |>
+  group_by(food) |>
+  summarize(n=n()) |>
+  drop_na() |>
+  arrange(desc(n)) |>
+  head(2)
+most_popular_foods
+```
+## Question 3:
+```{r question_3, include=TRUE, echo=FALSE, message=FALSE}
+dinners_explicit_q3 <- dinners_explicit |>
+  semi_join(most_popular_foods) |>
+  anti_join(most_popular_drinks) |>
+  drop_na()
+dinners_explicit_q3
+```
+## Question 4:
+```{r question_4, include=TRUE, echo=FALSE, message=FALSE}
+singers = read_csv("singers.csv")
+
+singers <- singers |>
+  mutate(
+    first_name = tolower(first_name), 
+    last_name = tolower(last_name), 
+    full_name = paste(first_name, last_name), 
+    date_of_birth = as.Date(paste(year, month, day, sep = "-")),
+    age_today = as.integer(2024-year)) |>
+  filter(str_detect(last_name, "^[^aeiou]{2}"))
+singers
+```
